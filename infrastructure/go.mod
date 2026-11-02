@@ -117,7 +117,8 @@ require (
 )
 
 require (
-	\g<1>v0.0.0-20261102001943-cd32d5877a69s/sdk/v7 v7.44.0
+	github.com/lambdawalker/go.apexfission.aws.verifyemail v0.0.0-20261102001943-cd32d5877a69
+	github.com/pulumi/pulumi-aws/sdk/v7 v7.44.0
 	github.com/pulumi/pulumi/sdk/v3 v3.264.0
 )
 
