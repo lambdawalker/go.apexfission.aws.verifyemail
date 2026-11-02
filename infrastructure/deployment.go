@@ -2,6 +2,8 @@
 // using the declared Cognito enrollment integration. It never provisions Cognito.
 package infrastructure
 
+import "github.com/lambdawalker/go.infra.composer/adapters/pulumi/awslabels"
+
 import (
 	"encoding/base64"
 	"encoding/json"
@@ -106,27 +108,31 @@ func Deploy(ctx *pulumi.Context, cfg Config, opts Options) (*Deployment, error) 
 	if e := Validate(cfg, opts); e != nil {
 		return nil, e
 	}
+	ctx, labels, labelErr := awslabels.Ensure(ctx, opts.Environment, cfg.Get("appOrigin"), "verifyemail")
+	if labelErr != nil {
+		return nil, labelErr
+	}
 	in := opts.Integration
-	table, e := dynamodb.NewTable(ctx, "verification-proofs", &dynamodb.TableArgs{BillingMode: pulumi.String("PAY_PER_REQUEST"), HashKey: pulumi.String("id"), Attributes: dynamodb.TableAttributeArray{&dynamodb.TableAttributeArgs{Name: pulumi.String("id"), Type: pulumi.String("S")}}, Ttl: &dynamodb.TableTtlArgs{AttributeName: pulumi.String("ttl"), Enabled: pulumi.Bool(true)}, ServerSideEncryption: &dynamodb.TableServerSideEncryptionArgs{Enabled: pulumi.Bool(true)}, PointInTimeRecovery: &dynamodb.TablePointInTimeRecoveryArgs{Enabled: pulumi.Bool(true)}})
+	table, e := dynamodb.NewTable(ctx, "verification-proofs", &dynamodb.TableArgs{BillingMode: pulumi.String("PAY_PER_REQUEST"), HashKey: pulumi.String("id"), Attributes: dynamodb.TableAttributeArray{&dynamodb.TableAttributeArgs{Name: pulumi.String("id"), Type: pulumi.String("S")}}, Ttl: &dynamodb.TableTtlArgs{AttributeName: pulumi.String("ttl"), Enabled: pulumi.Bool(true)}, ServerSideEncryption: &dynamodb.TableServerSideEncryptionArgs{Enabled: pulumi.Bool(true)}, PointInTimeRecovery: &dynamodb.TablePointInTimeRecoveryArgs{Enabled: pulumi.Bool(true)}}, awslabels.Option(ctx))
 	if e != nil {
 		return nil, e
 	}
-	secret, e := secretsmanager.NewSecret(ctx, "email-proof-key", &secretsmanager.SecretArgs{Description: pulumi.String("Email verification HMAC key; immutable version delivery")})
+	secret, e := secretsmanager.NewSecret(ctx, "email-proof-key", &secretsmanager.SecretArgs{Description: pulumi.String("Email verification HMAC key; immutable version delivery")}, awslabels.Option(ctx))
 	if e != nil {
 		return nil, e
 	}
-	version, e := secretsmanager.NewSecretVersion(ctx, "email-proof-key-version", &secretsmanager.SecretVersionArgs{SecretId: secret.ID(), SecretString: pulumi.ToSecret(cfg.RequireSecret("proofKey")).(pulumi.StringOutput)})
+	version, e := secretsmanager.NewSecretVersion(ctx, "email-proof-key-version", &secretsmanager.SecretVersionArgs{SecretId: secret.ID(), SecretString: pulumi.ToSecret(cfg.RequireSecret("proofKey")).(pulumi.StringOutput)}, awslabels.Option(ctx))
 	if e != nil {
 		return nil, e
 	}
 	out := &Deployment{Table: table}
 	for _, artifact := range artifacts.Lambdas() {
 		name := artifact.Name
-		role, e := iam.NewRole(ctx, "verifyemail-"+name+"-role", &iam.RoleArgs{AssumeRolePolicy: pulumi.String(`{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}`)})
+		role, e := iam.NewRole(ctx, "verifyemail-"+name+"-role", &iam.RoleArgs{AssumeRolePolicy: pulumi.String(`{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}`)}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
-		_, e = iam.NewRolePolicyAttachment(ctx, "verifyemail-"+name+"-logs", &iam.RolePolicyAttachmentArgs{Role: role.Name, PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole")})
+		_, e = iam.NewRolePolicyAttachment(ctx, "verifyemail-"+name+"-logs", &iam.RolePolicyAttachmentArgs{Role: role.Name, PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole")}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
@@ -154,7 +160,7 @@ func Deploy(ctx *pulumi.Context, cfg Config, opts Options) (*Deployment, error) 
 			b, e := json.Marshal(map[string]any{"Version": "2012-10-17", "Statement": statements})
 			return string(b), e
 		}).(pulumi.StringOutput)
-		grant, e := iam.NewRolePolicy(ctx, "verifyemail-"+name+"-permissions", &iam.RolePolicyArgs{Role: role.ID(), Policy: policy})
+		grant, e := iam.NewRolePolicy(ctx, "verifyemail-"+name+"-permissions", &iam.RolePolicyArgs{Role: role.ID(), Policy: policy}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
@@ -163,22 +169,27 @@ func Deploy(ctx *pulumi.Context, cfg Config, opts Options) (*Deployment, error) 
 			return nil, e
 		}
 		vars := pulumi.StringMap{"TABLE_NAME": table.Name, "GRANT_TABLE": in["grants_table_name"], "POOL_ID": in["pool_id"], "CLIENT_ID": in["client_id"], "APP_ORIGIN": pulumi.String(cfg.Get("appOrigin")), "SENDER_ADDRESS": pulumi.String(cfg.Get("senderAddress")), "PROOF_KEY_SECRET_ARN": secret.Arn, "PROOF_KEY_SECRET_VERSION": version.VersionId, "DIAGNOSTIC_MODE": pulumi.String(strconv.FormatBool(cfg.Get("diagnosticMode") == "true")), "EMAIL_SUBJECT": pulumi.String(cfg.Get("emailSubject"))}
-		fn, e := lambda.NewFunction(ctx, "email-"+name, &lambda.FunctionArgs{Runtime: pulumi.String("provided.al2023"), Handler: pulumi.String("bootstrap"), Architectures: pulumi.StringArray{pulumi.String("arm64")}, Role: role.Arn, Code: pulumi.NewFileArchive(archive), Timeout: pulumi.Int(25), MemorySize: pulumi.Int(256), Environment: &lambda.FunctionEnvironmentArgs{Variables: vars}}, pulumi.DependsOn([]pulumi.Resource{grant}))
+		fn, e := lambda.NewFunction(ctx, "email-"+name, &lambda.FunctionArgs{Runtime: pulumi.String("provided.al2023"), Handler: pulumi.String("bootstrap"), Architectures: pulumi.StringArray{pulumi.String("arm64")}, Role: role.Arn, Code: pulumi.NewFileArchive(archive), Timeout: pulumi.Int(25), MemorySize: pulumi.Int(256), Environment: &lambda.FunctionEnvironmentArgs{Variables: vars}}, pulumi.DependsOn([]pulumi.Resource{grant}), awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
 		out.Functions = append(out.Functions, fn)
-		integration, e := apigatewayv2.NewIntegration(ctx, "verifyemail-"+name+"-integration", &apigatewayv2.IntegrationArgs{ApiId: in["api_id"], IntegrationType: pulumi.String("AWS_PROXY"), IntegrationUri: fn.InvokeArn, PayloadFormatVersion: pulumi.String("2.0")})
+		integration, e := apigatewayv2.NewIntegration(ctx, "verifyemail-"+name+"-integration", &apigatewayv2.IntegrationArgs{ApiId: in["api_id"], IntegrationType: pulumi.String("AWS_PROXY"), IntegrationUri: fn.InvokeArn, PayloadFormatVersion: pulumi.String("2.0")}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
-		_, e = apigatewayv2.NewRoute(ctx, "verifyemail-"+name+"-route", &apigatewayv2.RouteArgs{ApiId: in["api_id"], RouteKey: pulumi.String("POST /" + name), Target: pulumi.Sprintf("integrations/%s", integration.ID())})
+		_, e = apigatewayv2.NewRoute(ctx, "verifyemail-"+name+"-route", &apigatewayv2.RouteArgs{ApiId: in["api_id"], RouteKey: pulumi.String("POST /" + name), Target: pulumi.Sprintf("integrations/%s", integration.ID())}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
 		}
-		_, e = lambda.NewPermission(ctx, "verifyemail-allow-"+name, &lambda.PermissionArgs{Action: pulumi.String("lambda:InvokeFunction"), Function: fn.Name, Principal: pulumi.String("apigateway.amazonaws.com"), SourceArn: pulumi.Sprintf("%s/*/POST/%s", in["api_execution_arn"], name)})
+		_, e = lambda.NewPermission(ctx, "verifyemail-allow-"+name, &lambda.PermissionArgs{Action: pulumi.String("lambda:InvokeFunction"), Function: fn.Name, Principal: pulumi.String("apigateway.amazonaws.com"), SourceArn: pulumi.Sprintf("%s/*/POST/%s", in["api_execution_arn"], name)}, awslabels.Option(ctx))
 		if e != nil {
 			return nil, e
+		}
+	}
+	if labels != nil {
+		if err := labels.Export(ctx, "resourceInventory"); err != nil {
+			return nil, err
 		}
 	}
 	return out, nil

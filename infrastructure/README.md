@@ -7,3 +7,7 @@ Configuration: appOrigin (HTTPS origin), senderDomain, senderAddress, diagnostic
 `PreflightOptions` creates placeholders for integration fields already checked by composer, solely to validate config/archive availability before native outputs exist. Actual deployment always receives the resolved native inputs. This adapter creates neither a Cognito pool nor an HTTP API; standalone hosting can supply those from any conforming provider. One verification instance per stack is supported. A generic Go embedding can use other identity providers through email.Identity without this adapter.
 
 The existing SES identity is shared with Cognito OTP mail. Readiness/production SES access is an operator requirement; local mocks cannot verify it. Reset coordination must pause all three functions before clearing proof and grant tables, include their exact resources in reset IAM, then resume them. See the application's implementation and tests.
+
+## Ownership labels
+
+Native resources receive the seven canonical `ic:` tags where their provider schema supports tags, with safe description prefixes on mutable fields. No physical identifiers change. `resourceInventory` lists every registered AWS resource, including unsupported tagging cases and child identifiers. The application supplies per-feature scopes; standalone adapters derive validated project/environment/origin defaults. Use `ownershipDomain` in the application stack to override the hostname label; shared control-plane resources use environment `shared`. Legacy SES adapter resources remain explicitly inventory-only.
