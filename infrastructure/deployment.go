@@ -108,7 +108,7 @@ func Deploy(ctx *pulumi.Context, cfg Config, opts Options) (*Deployment, error) 
 	if e := Validate(cfg, opts); e != nil {
 		return nil, e
 	}
-	ctx, labels, labelErr := awslabels.Ensure(ctx, opts.Environment, cfg.Get("appOrigin"), "verifyemail")
+	ctx, labels, labelErr := awslabels.Ensure(ctx, opts.Environment, cfg.Get("appOrigin"), "verifyemail", "go.apexfission.aws.verifyemail")
 	if labelErr != nil {
 		return nil, labelErr
 	}
