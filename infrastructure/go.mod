@@ -6,7 +6,7 @@ replace github.com/lambdawalker/go.apexfission.aws.verifyemail => ..
 
 require (
 	github.com/lambdawalker/go.apexfission.aws.verifyemail v0.0.0-20261102001943-cd32d5877a69
-	github.com/lambdawalker/go.infra.composer v0.0.0-20261103142306-5d896c43edf3
+	github.com/lambdawalker/go.infra.composer v0.0.0-20261103191159-60f558f75e08
 	github.com/lambdawalker/go.infra.composer/adapters/pulumi v0.0.0-20261103142306-5d896c43edf3
 	github.com/pulumi/pulumi-aws/sdk/v7 v7.44.0
 	github.com/pulumi/pulumi/sdk/v3 v3.273.0
