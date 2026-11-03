@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "scope": {
+    "repository": "go.apexfission.aws.verifyemail",
+    "environment": "preview"
+  },
+  "metadata": {
+    "startedAt": "0001-01-01T00:00:00Z",
+    "finishedAt": "0001-01-01T00:00:00Z"
+  },
+  "cacheLoaded": false,
+  "warnings": [
+    "illustrative_offline_catalog"
+  ],
+  "artifacts": [
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:dynamodb/table:Table::verification-proofs",
+      "name": "verification-proofs",
+      "type": "aws:dynamodb/table:Table",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-confirm-role",
+      "name": "verifyemail-confirm-role",
+      "type": "aws:iam/role:Role",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-resend-role",
+      "name": "verifyemail-resend-role",
+      "type": "aws:iam/role:Role",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-signup-role",
+      "name": "verifyemail-signup-role",
+      "type": "aws:iam/role:Role",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicy:RolePolicy::verifyemail-confirm-permissions",
+      "name": "verifyemail-confirm-permissions",
+      "type": "aws:iam/rolePolicy:RolePolicy",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-confirm-role",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicy:RolePolicy::verifyemail-resend-permissions",
+      "name": "verifyemail-resend-permissions",
+      "type": "aws:iam/rolePolicy:RolePolicy",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-resend-role",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicy:RolePolicy::verifyemail-signup-permissions",
+      "name": "verifyemail-signup-permissions",
+      "type": "aws:iam/rolePolicy:RolePolicy",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-signup-role",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:secretsmanager/secret:Secret::email-proof-key",
+      "name": "email-proof-key",
+      "type": "aws:secretsmanager/secret:Secret",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:secretsmanager/secretVersion:SecretVersion::email-proof-key-version",
+      "name": "email-proof-key-version",
+      "type": "aws:secretsmanager/secretVersion:SecretVersion",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:secretsmanager/secret:Secret::email-proof-key",
+      "priority": 20,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-confirm",
+      "name": "email-confirm",
+      "type": "aws:lambda/function:Function",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-confirm-role",
+      "priority": 30,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-resend",
+      "name": "email-resend",
+      "type": "aws:lambda/function:Function",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-resend-role",
+      "priority": 30,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-signup",
+      "name": "email-signup",
+      "type": "aws:lambda/function:Function",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-signup-role",
+      "priority": 30,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/integration:Integration::verifyemail-confirm-integration",
+      "name": "verifyemail-confirm-integration",
+      "type": "aws:apigatewayv2/integration:Integration",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/integration:Integration::verifyemail-resend-integration",
+      "name": "verifyemail-resend-integration",
+      "type": "aws:apigatewayv2/integration:Integration",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/integration:Integration::verifyemail-signup-integration",
+      "name": "verifyemail-signup-integration",
+      "type": "aws:apigatewayv2/integration:Integration",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/route:Route::verifyemail-confirm-route",
+      "name": "verifyemail-confirm-route",
+      "type": "aws:apigatewayv2/route:Route",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/route:Route::verifyemail-resend-route",
+      "name": "verifyemail-resend-route",
+      "type": "aws:apigatewayv2/route:Route",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:apigatewayv2/route:Route::verifyemail-signup-route",
+      "name": "verifyemail-signup-route",
+      "type": "aws:apigatewayv2/route:Route",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicyAttachment:RolePolicyAttachment::verifyemail-confirm-logs",
+      "name": "verifyemail-confirm-logs",
+      "type": "aws:iam/rolePolicyAttachment:RolePolicyAttachment",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-confirm-role",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicyAttachment:RolePolicyAttachment::verifyemail-resend-logs",
+      "name": "verifyemail-resend-logs",
+      "type": "aws:iam/rolePolicyAttachment:RolePolicyAttachment",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-resend-role",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:iam/rolePolicyAttachment:RolePolicyAttachment::verifyemail-signup-logs",
+      "name": "verifyemail-signup-logs",
+      "type": "aws:iam/rolePolicyAttachment:RolePolicyAttachment",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:iam/role:Role::verifyemail-signup-role",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/permission:Permission::verifyemail-allow-confirm",
+      "name": "verifyemail-allow-confirm",
+      "type": "aws:lambda/permission:Permission",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-confirm",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/permission:Permission::verifyemail-allow-resend",
+      "name": "verifyemail-allow-resend",
+      "type": "aws:lambda/permission:Permission",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-resend",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    },
+    {
+      "key": "urn:pulumi:preview::offline-preview::aws:lambda/permission:Permission::verifyemail-allow-signup",
+      "name": "verifyemail-allow-signup",
+      "type": "aws:lambda/permission:Permission",
+      "provider": "aws",
+      "owner": "go.apexfission.aws.verifyemail",
+      "feature": "email-verification",
+      "parent": "urn:pulumi:preview::offline-preview::aws:lambda/function:Function::email-signup",
+      "priority": 60,
+      "plannedAction": "declared",
+      "observation": {
+        "status": "unknown",
+        "observedAt": "0001-01-01T00:00:00Z",
+        "reason": "unchecked"
+      }
+    }
+  ]
+}
