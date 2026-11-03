@@ -122,3 +122,38 @@ func TestDeploymentSeparatesProofsGrantsAndScopesSecrets(t *testing.T) {
 		t.Fatal("unencrypted proofs")
 	}
 }
+
+// Existing Attestra stacks use route-<endpoint>. Keep their physical routes
+// when adopting the feature's names, including after a partially failed update.
+func TestRoutesAliasExistingAttestraIdentities(t *testing.T) {
+	cfg, opts := fixtures(t)
+	m := &mocks{resources: map[string]pulumi.MockResourceArgs{}}
+	err := pulumi.RunErr(func(ctx *pulumi.Context) error { _, e := Deploy(ctx, cfg, opts); return e }, pulumi.WithMocks("attestra-application", "dev", m))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, endpoint := range []string{"signup", "resend", "confirm"} {
+		r, ok := m.resources["verifyemail-"+endpoint+"-route"]
+		if !ok {
+			t.Fatal("missing route", endpoint)
+		}
+		want := "urn:pulumi:dev::attestra-application::aws:apigatewayv2/route:Route::route-" + endpoint
+		found := false
+		for _, urn := range r.RegisterRPC.GetAliasURNs() {
+			if urn == want {
+				found = true
+			}
+		}
+		for _, alias := range r.RegisterRPC.GetAliases() {
+			if alias.GetUrn() == want || (alias.GetSpec() != nil && alias.GetSpec().GetName() == "route-"+endpoint) {
+				found = true
+			}
+		}
+		if !found {
+			t.Errorf("%s lacks migration alias %s", r.Name, want)
+		}
+		if r.Inputs["routeKey"].StringValue() != "POST /"+endpoint {
+			t.Errorf("endpoint changed: %s", endpoint)
+		}
+	}
+}

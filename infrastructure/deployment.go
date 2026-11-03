@@ -178,7 +178,9 @@ func Deploy(ctx *pulumi.Context, cfg Config, opts Options) (*Deployment, error) 
 		if e != nil {
 			return nil, e
 		}
-		_, e = apigatewayv2.NewRoute(ctx, "verifyemail-"+name+"-route", &apigatewayv2.RouteArgs{ApiId: in["api_id"], RouteKey: pulumi.String("POST /" + name), Target: pulumi.Sprintf("integrations/%s", integration.ID())}, awslabels.Option(ctx))
+		// The pre-extraction application registered route-<endpoint>. Adopt its
+		// existing identity instead of attempting a duplicate API route.
+		_, e = apigatewayv2.NewRoute(ctx, "verifyemail-"+name+"-route", &apigatewayv2.RouteArgs{ApiId: in["api_id"], RouteKey: pulumi.String("POST /" + name), Target: pulumi.Sprintf("integrations/%s", integration.ID())}, awslabels.Option(ctx), pulumi.Aliases([]pulumi.Alias{{Name: pulumi.String("route-" + name)}}))
 		if e != nil {
 			return nil, e
 		}

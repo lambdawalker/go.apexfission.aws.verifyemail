@@ -23,3 +23,14 @@ To read an explicitly selected cached app report use `-cache FILE -project PROJE
 Checked-in `docs/artifacts/` samples are deterministic illustrative defaults, with unknown presence and no deployed IDs.
 
 The offline catalog and cache selector use canonical `email-verification`, matching composed application reports. This preview label leaves native standalone deployment ownership defaults unchanged.
+
+### Existing application routes
+
+The feature aliases `route-signup`, `route-resend`, and `route-confirm` to its
+`verifyemail-<endpoint>-route` resource names in the same Pulumi project/stack.
+This preserves the existing API Gateway route IDs when upgrading pre-extraction
+Attestra stacks, including retries after a duplicate-route 409 failure. Keep
+these aliases for stacks that have not upgraded yet. No manual route deletion
+or state removal is needed when those old routes remain in the stack state.
+Preview the upgrade without timed approvals and confirm these routes are adopted
+instead of created. Routes outside this stack's state need separate investigation.
