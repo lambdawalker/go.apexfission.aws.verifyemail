@@ -28,7 +28,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:dynamodb/table:Table
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -41,7 +41,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/role:Role
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -54,7 +54,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicy:RolePolicy
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -67,7 +67,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/function:Function
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -80,7 +80,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/permission:Permission
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -93,7 +93,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicyAttachment:RolePolicyAttachment
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -106,7 +106,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/role:Role
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -119,7 +119,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicy:RolePolicy
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -132,7 +132,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/function:Function
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -145,7 +145,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/permission:Permission
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -158,7 +158,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicyAttachment:RolePolicyAttachment
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -171,7 +171,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/role:Role
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -184,7 +184,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicy:RolePolicy
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -197,7 +197,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/function:Function
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -210,7 +210,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:lambda/permission:Permission
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -223,7 +223,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:iam/rolePolicyAttachment:RolePolicyAttachment
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -236,7 +236,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:secretsmanager/secret:Secret
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -249,7 +249,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:secretsmanager/secretVersion:SecretVersion
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -262,7 +262,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/integration:Integration
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -275,7 +275,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/integration:Integration
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -288,7 +288,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/integration:Integration
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -301,7 +301,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/route:Route
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -314,7 +314,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/route:Route
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 
@@ -327,7 +327,7 @@ Warning: illustrative\_offline\_catalog
 - Type: aws:apigatewayv2/route:Route
 - Provider ID: 
 - Owner: go.apexfission.aws.verifyemail
-- Feature: verifyemail
+- Feature: email-verification
 - Planned action: declared
 - Presence: unknown
 - Source: 

@@ -8,6 +8,10 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// PreviewFeature is the canonical feature selector used by consuming application reports.
+// It does not alter the native deployment ownership defaults.
+const PreviewFeature = "email-verification"
+
 // Preview constructs the actual native feature offline. External host bindings
 // and private empty archives are fixtures; no provider or deployment is invoked.
 func Preview(config reportpreview.Config, environment string) (out []reporting.Artifact, err error) {
@@ -18,7 +22,7 @@ func Preview(config reportpreview.Config, environment string) (out []reporting.A
 	}
 	err = reportpreview.Archives(names, func(dir string) error {
 		var e error
-		out, e = reportpreview.Catalog(environment, "verifyemail", "go.apexfission.aws.verifyemail", func(ctx *pulumi.Context) error {
+		out, e = reportpreview.Catalog(environment, PreviewFeature, "go.apexfission.aws.verifyemail", func(ctx *pulumi.Context) error {
 			cfg["proofKey"] = base64.StdEncoding.EncodeToString(make([]byte, 32))
 			integration := map[string]pulumi.StringInput{}
 			for _, k := range integrationFields() {
