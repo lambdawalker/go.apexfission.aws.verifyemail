@@ -157,6 +157,77 @@ func TestAutoProofRequiresMatchingAAndB(t *testing.T) {
 		t.Fatalf("replay: %v", err)
 	}
 }
+func TestOriginalDeviceCanConfirmWithAAndCodeWithoutOpeningLink(t *testing.T) {
+	s, store, send, _, a := fixture()
+	ctx := context.Background()
+	r, err := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: "wrong", TokenC: send.c}); !errors.Is(err, ErrUnusable) {
+		t.Fatalf("wrong A: %v", err)
+	}
+	if store.t.Attempts != 0 {
+		t.Fatal("wrong A charged C attempts")
+	}
+	result, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: send.c})
+	if err != nil || result.AccessToken != "access" {
+		t.Fatalf("A+C confirm: %+v %v", result, err)
+	}
+	if store.t.State != Confirmed {
+		t.Fatal("A+C did not confirm transaction")
+	}
+}
+
+func TestConfirmRequiresExactlyOneSupportedProofPair(t *testing.T) {
+	s, _, send, _, a := fixture()
+	ctx := context.Background()
+	r, _ := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	b := token(send.link)
+	for name, input := range map[string]ConfirmInput{
+		"A only":   {RequestID: r.RequestID, TokenA: a},
+		"B only":   {RequestID: r.RequestID, TokenB: b},
+		"C only":   {RequestID: r.RequestID, TokenC: send.c},
+		"A+B+C":    {RequestID: r.RequestID, TokenA: a, TokenB: b, TokenC: send.c},
+		"no proof": {RequestID: r.RequestID},
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := s.Confirm(ctx, input); !errors.Is(err, ErrInvalid) {
+				t.Fatalf("expected invalid proof combination, got %v", err)
+			}
+		})
+	}
+}
+
+func TestResendKeepsAUsableWithNewestCode(t *testing.T) {
+	s, store, send, _, a := fixture()
+	ctx := context.Background()
+	r, _ := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	oldCode := send.c
+	s.Now = func() time.Time { return time.Unix(1700000061, 0) }
+	s.Random = func(b []byte) error {
+		for n := range b {
+			b[n] = byte(100 + n)
+		}
+		return nil
+	}
+	if err := s.Resend(ctx, r.RequestID, "source"); err != nil {
+		t.Fatal(err)
+	}
+	if send.c == oldCode {
+		t.Fatal("resend did not rotate code")
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: oldCode}); !errors.Is(err, ErrIncorrect) {
+		t.Fatalf("old C: %v", err)
+	}
+	if store.t.Attempts != 1 {
+		t.Fatalf("old C did not count exactly one attempt: %d", store.t.Attempts)
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: send.c}); err != nil {
+		t.Fatalf("new A+C: %v", err)
+	}
+}
+
 func TestManualCodeIsSixDigitsAndLimited(t *testing.T) {
 	s, store, send, _, _ := fixture()
 	ctx := context.Background()
