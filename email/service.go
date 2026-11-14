@@ -143,9 +143,23 @@ type SignupResult struct {
 }
 type ConfirmInput struct {
 	RequestID string `json:"request_id"`
-	TokenB    string `json:"token_b"`
+	TokenB    string `json:"token_b,omitempty"`
 	TokenA    string `json:"token_a,omitempty"`
 	TokenC    string `json:"token_c,omitempty"`
+}
+
+func confirmProofMode(in ConfirmInput) (string, error) {
+	hasA, hasB, hasC := in.TokenA != "", in.TokenB != "", in.TokenC != ""
+	switch {
+	case hasA && hasB && !hasC:
+		return "A+B", nil
+	case hasA && !hasB && hasC:
+		return "A+C", nil
+	case !hasA && hasB && hasC:
+		return "B+C", nil
+	default:
+		return "", ErrInvalid
+	}
 }
 
 func (s *Service) now() time.Time {
@@ -367,9 +381,16 @@ func (s *Service) Resend(ctx context.Context, id, source string) error {
 }
 
 func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error) {
-	event(ctx, fmt.Sprintf("confirm_started request_id=%s proof=%s", in.RequestID, map[bool]string{true: "A+B", false: "B+C"}[in.TokenA != ""]))
-	if !validToken(in.RequestID) || !validToken(in.TokenB) || (in.TokenA == "") == (in.TokenC == "") {
+	mode, modeErr := confirmProofMode(in)
+	event(ctx, fmt.Sprintf("confirm_started request_id=%s proof=%s", in.RequestID, mode))
+	if modeErr != nil || !validToken(in.RequestID) {
 		return Session{}, ErrInvalid
+	}
+	if in.TokenB != "" && !validToken(in.TokenB) {
+		return Session{}, ErrInvalid
+	}
+	if in.TokenA != "" && !validToken(in.TokenA) {
+		return Session{}, ErrUnusable
 	}
 	t, err := s.Store.Get(ctx, in.RequestID)
 	if err != nil {
@@ -383,10 +404,26 @@ func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error)
 		event(ctx, fmt.Sprintf("confirm_replayed request_id=%s", in.RequestID))
 		return Session{}, ErrUsed
 	}
-	if t.State == Confirming && s.now().Unix()-t.ClaimedAt >= 60 && t.Expires > s.now().Unix() && same(t.BHash, hash(in.TokenB)) {
+
+	// Validate the high-entropy proof before any code-attempt accounting.
+	if in.TokenB != "" && !same(t.BHash, hash(in.TokenB)) {
+		return Session{}, ErrUnusable
+	}
+	if in.TokenA != "" {
+		a, decodeErr := base64.RawURLEncoding.DecodeString(in.TokenA)
+		if decodeErr != nil || len(a) != 32 {
+			return Session{}, ErrUnusable
+		}
+		sum := sha256.Sum256(a)
+		if !same(t.Challenge, base64.RawURLEncoding.EncodeToString(sum[:])) {
+			return Session{}, ErrUnusable
+		}
+	}
+
+	if t.State == Confirming && s.now().Unix()-t.ClaimedAt >= 60 && t.Expires > s.now().Unix() {
 		// The confirm Lambda timeout is 25 seconds. After 60 seconds an absent account
-		// can safely reclaim an interrupted confirmation; an existing account
-		// must recover via email OTP rather than receive another session here.
+		// can safely reclaim an interrupted confirmation when the retry still proves
+		// possession of the transaction's high-entropy A or B proof.
 		eligible, lookupErr := s.Identity.Eligible(ctx, t.Email)
 		if lookupErr != nil {
 			failure := operation(ctx, "confirm_recovery_lookup", lookupErr)
@@ -411,19 +448,10 @@ func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error)
 	if t.State == Confirming {
 		return Session{}, ErrConflict
 	}
-	if t.State != Pending || t.Expires <= s.now().Unix() || !same(t.BHash, hash(in.TokenB)) {
+	if t.State != Pending || t.Expires <= s.now().Unix() {
 		return Session{}, ErrUnusable
 	}
-	if in.TokenA != "" {
-		a, decodeErr := base64.RawURLEncoding.DecodeString(in.TokenA)
-		if decodeErr != nil || len(a) != 32 {
-			return Session{}, ErrUnusable
-		}
-		sum := sha256.Sum256(a)
-		if !same(t.Challenge, base64.RawURLEncoding.EncodeToString(sum[:])) {
-			return Session{}, ErrUnusable
-		}
-	} else {
+	if in.TokenC != "" {
 		if len(in.TokenC) != 6 || strings.Trim(in.TokenC, "0123456789") != "" {
 			return Session{}, ErrInvalid
 		}
