@@ -2,7 +2,7 @@
 
 Independent email verification feature extracted from go.apexfission.aws.auth. The reusable state machine, API handlers, DynamoDB proof store, SES sender, Secrets Manager reader and optional Cognito enrollment adapter live here. No authentication or application module is imported.
 
-The existing protocol is preserved: local token A plus email-link token B, or B plus the six-digit manual code C; ten-minute proofs, resend invalidation/cooldown, budgets, conditional claims, single-use confirmation and sign-in recovery after interrupted account creation. Generic Go hosts inject `email.Store`, `email.Sender` and `email.Identity` into `email.Service`; the identity interface determines eligibility, completion and optional session issuance.
+The proof protocol accepts local token A plus email-link token B, local A plus the six-digit manual code C, or B plus C; ten-minute proofs, resend invalidation/cooldown, budgets, conditional claims, single-use confirmation and sign-in recovery after interrupted account creation. Generic Go hosts inject `email.Store`, `email.Sender` and `email.Identity` into `email.Service`; the identity interface determines eligibility, completion and optional session issuance.
 
 ## Native feature contract
 
