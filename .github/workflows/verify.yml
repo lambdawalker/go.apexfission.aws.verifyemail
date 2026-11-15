@@ -12,6 +12,8 @@ jobs:
       - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
+      - name: Resolve composed-backend module checksums
+        run: go mod download -json github.com/lambdawalker/go.apexfission.aws.verifyemail@v0.0.0-20261115054005-ca0117260da9
       - run: go mod verify
       - run: go test -race ./...
       - run: go vet ./...
