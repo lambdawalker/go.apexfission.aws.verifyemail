@@ -157,6 +157,7 @@ func TestAutoProofRequiresMatchingAAndB(t *testing.T) {
 		t.Fatalf("replay: %v", err)
 	}
 }
+
 // The initiating device has its original high-entropy A but does not need
 // to open the link to enter C from the same email.
 func TestInitiatingDeviceCanConfirmWithAAndCWithoutLink(t *testing.T) {
