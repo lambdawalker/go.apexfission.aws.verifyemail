@@ -367,9 +367,35 @@ func (s *Service) Resend(ctx context.Context, id, source string) error {
 }
 
 func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error) {
-	event(ctx, fmt.Sprintf("confirm_started request_id=%s proof=%s", in.RequestID, map[bool]string{true: "A+B", false: "B+C"}[in.TokenA != ""]))
-	if !validToken(in.RequestID) || !validToken(in.TokenB) || (in.TokenA == "") == (in.TokenC == "") {
+	hasA, hasB, hasC := in.TokenA != "", in.TokenB != "", in.TokenC != ""
+	// The initiating client can verify directly with A+C; a client without A
+	// must open the email link and provide B+C. Link confirmation uses A+B.
+	validCombination := (hasA && hasB && !hasC) || (hasA && !hasB && hasC) || (!hasA && hasB && hasC)
+	if !validToken(in.RequestID) || !validCombination || (hasB && !validToken(in.TokenB)) {
 		return Session{}, ErrInvalid
+	}
+	proof := "B+C"
+	if hasA {
+		if hasB {
+			proof = "A+B"
+		} else {
+			proof = "A+C"
+		}
+	}
+	event(ctx, fmt.Sprintf("confirm_started request_id=%s proof=%s", in.RequestID, proof))
+	matchesLocalProof := func(t Transaction) bool {
+		if !hasA {
+			return true
+		}
+		a, decodeErr := base64.RawURLEncoding.DecodeString(in.TokenA)
+		if decodeErr != nil || len(a) != 32 {
+			return false
+		}
+		sum := sha256.Sum256(a)
+		return same(t.Challenge, base64.RawURLEncoding.EncodeToString(sum[:]))
+	}
+	matchesLink := func(t Transaction) bool {
+		return !hasB || same(t.BHash, hash(in.TokenB))
 	}
 	t, err := s.Store.Get(ctx, in.RequestID)
 	if err != nil {
@@ -383,7 +409,7 @@ func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error)
 		event(ctx, fmt.Sprintf("confirm_replayed request_id=%s", in.RequestID))
 		return Session{}, ErrUsed
 	}
-	if t.State == Confirming && s.now().Unix()-t.ClaimedAt >= 60 && t.Expires > s.now().Unix() && same(t.BHash, hash(in.TokenB)) {
+	if t.State == Confirming && s.now().Unix()-t.ClaimedAt >= 60 && t.Expires > s.now().Unix() && matchesLocalProof(t) && matchesLink(t) {
 		// The confirm Lambda timeout is 25 seconds. After 60 seconds an absent account
 		// can safely reclaim an interrupted confirmation; an existing account
 		// must recover via email OTP rather than receive another session here.
@@ -411,19 +437,10 @@ func (s *Service) Confirm(ctx context.Context, in ConfirmInput) (Session, error)
 	if t.State == Confirming {
 		return Session{}, ErrConflict
 	}
-	if t.State != Pending || t.Expires <= s.now().Unix() || !same(t.BHash, hash(in.TokenB)) {
+	if t.State != Pending || t.Expires <= s.now().Unix() || !matchesLocalProof(t) || !matchesLink(t) {
 		return Session{}, ErrUnusable
 	}
-	if in.TokenA != "" {
-		a, decodeErr := base64.RawURLEncoding.DecodeString(in.TokenA)
-		if decodeErr != nil || len(a) != 32 {
-			return Session{}, ErrUnusable
-		}
-		sum := sha256.Sum256(a)
-		if !same(t.Challenge, base64.RawURLEncoding.EncodeToString(sum[:])) {
-			return Session{}, ErrUnusable
-		}
-	} else {
+	if hasC {
 		if len(in.TokenC) != 6 || strings.Trim(in.TokenC, "0123456789") != "" {
 			return Session{}, ErrInvalid
 		}

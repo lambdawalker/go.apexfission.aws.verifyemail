@@ -157,6 +157,82 @@ func TestAutoProofRequiresMatchingAAndB(t *testing.T) {
 		t.Fatalf("replay: %v", err)
 	}
 }
+
+// The initiating device has its original high-entropy A but does not need
+// to open the link to enter C from the same email.
+func TestInitiatingDeviceCanConfirmWithAAndCWithoutLink(t *testing.T) {
+	s, store, send, id, a := fixture()
+	ctx := context.Background()
+	r, err := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: send.c}); err != nil {
+		t.Fatalf("A+C confirmation failed: %v", err)
+	}
+	if id.issued != 1 || store.t.State != Confirmed {
+		t.Fatal("confirmation did not issue a single session")
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: send.c}); !errors.Is(err, ErrUsed) {
+		t.Fatalf("replayed A+C proof: %v", err)
+	}
+}
+
+func TestCodeRequiresSecondTransactionBoundProof(t *testing.T) {
+	s, store, send, _, a := fixture()
+	ctx := context.Background()
+	r, _ := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	for _, in := range []ConfirmInput{
+		{RequestID: r.RequestID, TokenC: send.c},
+		{RequestID: r.RequestID, TokenA: a},
+		{RequestID: r.RequestID, TokenB: token(send.link)},
+		{RequestID: r.RequestID, TokenA: a, TokenB: token(send.link), TokenC: send.c},
+	} {
+		if _, err := s.Confirm(ctx, in); !errors.Is(err, ErrInvalid) {
+			t.Fatalf("accepted incomplete or mixed proof: %v", err)
+		}
+	}
+	wrongA := base64.RawURLEncoding.EncodeToString(make([]byte, 32))
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: wrongA, TokenC: send.c}); !errors.Is(err, ErrUnusable) {
+		t.Fatalf("accepted wrong local proof: %v", err)
+	}
+	if store.t.Attempts != 0 {
+		t.Fatal("invalid local proof charged code attempts")
+	}
+}
+
+func TestInitiatingDeviceCodeIsRateLimitedAndRotatesOnResend(t *testing.T) {
+	s, store, send, _, a := fixture()
+	ctx := context.Background()
+	r, _ := s.Signup(ctx, "me@example.com", challenge(a), "S256", "source")
+	oldCode := send.c
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: "999999"}); !errors.Is(err, ErrIncorrect) {
+		t.Fatalf("wrong A+C code was not counted: %v", err)
+	}
+	if store.t.Attempts != 1 {
+		t.Fatalf("attempts %d", store.t.Attempts)
+	}
+	s.Now = func() time.Time { return time.Unix(1700000061, 0) }
+	s.Random = func(b []byte) error {
+		for n := range b {
+			b[n] = byte(100 + n)
+		}
+		return nil
+	}
+	if err := s.Resend(ctx, r.RequestID, "source"); err != nil {
+		t.Fatal(err)
+	}
+	if oldCode == send.c {
+		t.Fatal("resend did not rotate the code")
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: oldCode}); !errors.Is(err, ErrIncorrect) {
+		t.Fatalf("old code was not rejected: %v", err)
+	}
+	if _, err := s.Confirm(ctx, ConfirmInput{RequestID: r.RequestID, TokenA: a, TokenC: send.c}); err != nil {
+		t.Fatalf("new code and retained A should confirm: %v", err)
+	}
+}
+
 func TestManualCodeIsSixDigitsAndLimited(t *testing.T) {
 	s, store, send, _, _ := fixture()
 	ctx := context.Background()
