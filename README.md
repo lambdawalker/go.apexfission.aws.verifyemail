@@ -4,6 +4,10 @@ Independent email verification feature extracted from go.apexfission.aws.auth. T
 
 The confirmation protocol accepts A+B for automatic link verification, A+C for code entry on the initiating device without opening the link, or B+C for fallback on another device; ten-minute proofs, resend invalidation/cooldown, budgets, conditional claims, single-use confirmation and sign-in recovery after interrupted account creation. Generic Go hosts inject `email.Store`, `email.Sender` and `email.Identity` into `email.Service`; the identity interface determines eligibility, completion and optional session issuance.
 
+## Planned separation
+
+See the [verification-only plan and diagrams](docs/verification-only-plan.md) for the proposed responsibility boundary, verification sequence, and single-use result handoff. This is planned work; the current Cognito integration described below remains implemented.
+
 ## Native feature contract
 
 `feature.Declare("email-verification")` requires `identity.email-enrollment/v1`. This implemented adapter takes a Cognito pool/client, the authentication grant table, a host HTTP API, SES identity and account/region. It does not create those resources and never calls an authentication-specific RPC.
